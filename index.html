@@ -87,7 +87,7 @@
             opacity: 0.15;
         }
 
-        /* PORTERO MACSO (Diseño Arcade Corregido) */
+        /* PORTERO MACSO */
         .portero {
             position: absolute;
             bottom: 0;
@@ -95,13 +95,13 @@
             transform: translateX(-50%);
             width: 35px;
             height: 38px;
-            background: #4a3b63; /* Uniforme Retro */
+            background: #4a3b63; 
             border: 2px solid #000;
             z-index: 3;
-            transition: all 0.3s ease-out;
+            transition: all 0.35s ease-out;
         }
 
-        /* Cabeza de Macso */
+        /* Cabeza */
         .portero::before {
             content: "";
             position: absolute;
@@ -114,7 +114,7 @@
             border: 2px solid #000;
         }
 
-        /* Guantes listos para atajar */
+        /* Guantes */
         .portero::after {
             content: "🧤🧤";
             font-size: 11px;
@@ -125,45 +125,44 @@
             letter-spacing: 8px;
         }
 
-        /* ANIMACIÓN DE MOVIMIENTO DE LADO A LADO */
+        /* Mover de lado a lado */
         .portero.esperando {
             animation: moverLadoALado 1.8s infinite alternate ease-in-out;
         }
 
         @keyframes moverLadoALado {
-            0% { left: 25%; }
-            100% { left: 75%; }
+            0% { left: 20%; }
+            100% { left: 80%; }
         }
 
-        /* BOTONES ESTILO ESPEJO BRILLANTE */
+        /* CUADROS DE TIRO (ESPEJOS BRILLANTES) */
         .zona-tiro {
             position: absolute;
             font-family: 'Press Start 2P', monospace;
             font-size: 8px;
-            padding: 8px 12px;
+            width: 50px;
+            height: 32px;
             cursor: pointer;
-            /* Efecto reflejo de cristal/espejo */
             background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 40%, #94a3b8 70%, #64748b 100%);
             color: #1e293b;
             border: 3px solid #ffffff;
             box-shadow: inset -2px -2px 0px #475569, 3px 3px 0px #000;
             font-weight: bold;
             z-index: 5;
-            transition: transform 0.1s;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .zona-tiro:hover:not(:disabled) {
-            transform: scale(1.1);
-            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-        }
+        /* Posiciones exactas y simétricas dentro del arco */
+        .top-left     { top: 10px; left: 10px; }
+        .top-right    { top: 10px; right: 10px; }
+        .center       { top: 60px; left: 50%; transform: translateX(-50%); }
+        .bottom-left  { bottom: 10px; left: 10px; }
+        .bottom-right { bottom: 10px; right: 10px; }
 
-        .top-left     { top: 12px; left: 12px; }
-        .top-right    { top: 12px; right: 12px; }
-        .center       { top: 35px; left: 50%; transform: translateX(-50%); }
-        .bottom-left  { bottom: 12px; left: 12px; }
-        .bottom-right { bottom: 12px; right: 12px; }
-
-        .zona-tiro:disabled { opacity: 0; cursor: not-allowed; }
+        .zona-tiro:disabled { opacity: 0; transition: opacity 0.2s; }
 
         /* BALÓN */
         .balon {
@@ -196,7 +195,6 @@
 </head>
 <body>
 
-    <!-- Marcador con Nombre Actualizado -->
     <div class="marcador">
         <span>CLIENTE</span>
         <span>VS</span>
@@ -207,15 +205,14 @@
     <div class="sub">1 SOLO INTENTO POR JUGADOR</div>
 
     <div class="estadio" id="estadio">
-        <div class="porteria-retro">
-            <!-- Botones Espejo -->
-            <button class="zona-tiro top-left" onclick="jugar(0, -10, 45, 'izquierda')">[1]</button>
-            <button class="zona-tiro top-right" onclick="jugar(1, -10, 370, 'derecha')">[2]</button>
-            <button class="zona-tiro center" onclick="jugar(2, 20, 210, 'centro')">[3]</button>
-            <button class="zona-tiro bottom-left" onclick="jugar(3, 100, 45, 'izquierda')">[4]</button>
-            <button class="zona-tiro bottom-right" onclick="jugar(4, 100, 370, 'derecha')">[5]</button>
+        <div class="porteria-retro" id="arco">
+            <!-- Espejos de Selección -->
+            <button class="zona-tiro top-left" id="btn0" onclick="jugar(0)">[1]</button>
+            <button class="zona-tiro top-right" id="btn1" onclick="jugar(1)">[2]</button>
+            <button class="zona-tiro center" id="btn2" onclick="jugar(2)">[3]</button>
+            <button class="zona-tiro bottom-left" id="btn3" onclick="jugar(3)">[4]</button>
+            <button class="zona-tiro bottom-right" id="btn4" onclick="jugar(4)">[5]</button>
             
-            <!-- Portero Macso en movimiento constante -->
             <div class="portero esperando" id="portero"></div>
         </div>
 
@@ -244,46 +241,74 @@
             }
         };
 
-        function jugar(indice, topDestino, leftDestino, direccionTiro) {
+        function jugar(indice) {
             localStorage.setItem("yaJugoPenal", "true");
-
-            // Ocultar espejos de tiro de inmediato
-            document.querySelectorAll('.zona-tiro').forEach(b => b.disabled = true);
 
             const balon = document.getElementById('balon');
             const portero = document.getElementById('portero');
-            
-            // Capturar la posición exacta en la que iba el portero antes de frenar la animación
-            const estiloComputado = window.getComputedStyle(portero);
-            const leftActual = estiloComputado.left;
-            
+            const botonElegido = document.getElementById('btn' + indice);
+            const estadio = document.getElementById('estadio');
+            const arco = document.getElementById('arco');
+
+            // 1. CONGELAR MOVIMIENTO DEL ARQUERO
+            const estiloMacso = window.getComputedStyle(portero);
+            const leftActualMacso = estiloMacso.left;
             portero.classList.remove('esperando');
-            portero.style.left = leftActual; // Congelar en su posición actual
+            portero.style.left = leftActualMacso;
 
             const resultado = premiosMezclados[indice];
 
-            // Animación física del balón
-            balon.style.bottom = (380 - (topDestino + 100)) + "px"; 
-            balon.style.left = (leftDestino + 20) + "px";
-            balon.style.transform = "scale(0.55) rotate(720deg)";
+            // 2. ENCONTRAR COORDENADAS EXACTAS DEL CUADRO SELECCIONADO
+            const rectBoton = botonElegido.getBoundingClientRect();
+            const rectEstadio = estadio.getBoundingClientRect();
 
-            // Reacción del Portero Macso
+            // Calcular centro del cuadro relativo al contenedor verde
+            const destinoX = (rectBoton.left - rectEstadio.left) + (rectBoton.width / 2);
+            const destinoY = (rectBoton.top - rectEstadio.top) + (rectBoton.height / 2);
+
+            // Desaparecer el resto de botones para limpiar el arco
+            document.querySelectorAll('.zona-tiro').forEach((b, i) => {
+                if(i !== indice) b.style.opacity = '0';
+            });
+
+            // 3. DISPARO DEL BALÓN AL CUADRO
+            balon.style.top = (destinoY - 11) + "px"; // Centrado de balón (22px de ancho / 2 = 11)
+            balon.style.left = destinoX + "px";
+            balon.style.transform = "translateX(-50%) scale(0.6) rotate(720deg)";
+
+            // 4. REACCIÓN DE MACSO SEGÚN EL PREMIO
             setTimeout(() => {
                 if (resultado.tipo === "gol") {
-                    // Se avienta al lado opuesto de forma errática
-                    if (direccionTiro === "izquierda") { portero.style.left = "75%"; }
-                    else if (direccionTiro === "derecha") { portero.style.left = "25%"; }
-                    else { portero.style.left = "25%"; }
-                    portero.style.transform = "translateX(-50%) rotate(40deg)";
-                } else {
-                    // Ataja el balón y se mueve justo a la posición del espejo elegido
-                    portero.style.bottom = (160 - topDestino - 35) + "px";
-                    portero.style.left = leftDestino + "px";
-                    portero.style.height = "42px"; 
-                }
-            }, 50);
+                    // GOL: Macso salta tarde y en dirección opuesta al cuadro elegido
+                    if (destinoX > rectEstadio.width / 2) {
+                        portero.style.left = "25%"; // Si tiró a la derecha, salta a la izquierda
+                    } else {
+                        portero.style.left = "75%"; // Si tiró a la izquierda, salta a la derecha
+                    }
+                    portero.style.bottom = "20px";
+                    portero.style.transform = "translateX(-50%) rotate(-30deg)";
 
-            // Desplegar el premio obtenido
+                    // El balón da en el cuadro y cae levemente en las redes internas
+                    setTimeout(() => {
+                        balon.style.top = (destinoY + 15) + "px"; 
+                    }, 350);
+
+                } else {
+                    // ATAJADO: Macso vuela con precisión y sus guantes bloquean el balón en el cuadro
+                    const arcoRect = arco.getBoundingClientRect();
+                    const posicionYEnArco = rectBoton.top - arcoRect.top;
+                    const posicionXEnArco = rectBoton.left - arcoRect.left;
+
+                    portero.style.bottom = (160 - posicionYEnArco - 34) + "px";
+                    portero.style.left = (posicionXEnArco + (rectBoton.width / 2)) + "px";
+                    portero.style.height = "42px"; // Estiramiento físico
+                }
+            }, 60%;
+
+            // Esconder el botón usado al final de la trayectoria
+            setTimeout(() => { botonElegido.style.opacity = '0'; }, 400);
+
+            // 5. MOSTRAR MARCADOR DE PREMIOS
             setTimeout(() => {
                 const caja = document.getElementById('resultadoCaja');
                 const texto = document.getElementById('textoResultado');
@@ -294,7 +319,7 @@
                 } else {
                     texto.innerHTML = `<h2 style="color: #ff0055; font-size:14px; margin:0 0 10px 0;">¡ATAJADO!</h2><p>${resultado.msg}</p><p>¡Portero Macso defendió su arco con éxito!</p>`;
                 }
-            }, 600);
+            }, 650);
         }
 
         function bloquearTodo(mensaje) {
