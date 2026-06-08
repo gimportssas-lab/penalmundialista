@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penal Retro Mundialista</title>
+    <title>Penal Retro - Portero Macso</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body {
@@ -19,7 +19,7 @@
 
         h1 {
             color: #ffcc00;
-            font-size: 16px;
+            font-size: 15px;
             text-shadow: 3px 3px 0px #000;
             margin: 15px 0 5px 0;
         }
@@ -41,7 +41,7 @@
             box-shadow: 4px 4px 0px #000;
         }
 
-        /* ESCENARIO DEL JUEGO */
+        /* ESCENARIO */
         .estadio {
             position: relative;
             width: 100%;
@@ -54,7 +54,6 @@
             overflow: hidden;
         }
 
-        /* Líneas de la cancha */
         .linea-penal {
             position: absolute;
             bottom: 40px;
@@ -66,7 +65,6 @@
             border-bottom: none;
         }
 
-        /* Portería */
         .porteria-retro {
             position: absolute;
             top: 40px;
@@ -76,7 +74,7 @@
             height: 160px;
             border: 6px solid #ffffff;
             border-bottom: none;
-            background: rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.15);
             z-index: 2;
         }
 
@@ -89,56 +87,85 @@
             opacity: 0.15;
         }
 
-        /* EL PORTERO CORREGIDO (Estilo Agachado / Arcade) */
+        /* PORTERO MACSO (Diseño Arcade Corregido) */
         .portero {
             position: absolute;
-            bottom: 0; /* Parado exactamente sobre la línea de gol */
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 32px;
-            height: 36px;
-            background: #4a3b63; /* Morado/Gris oscuro retro */
+            width: 35px;
+            height: 38px;
+            background: #4a3b63; /* Uniforme Retro */
             border: 2px solid #000;
             z-index: 3;
-            transition: all 0.35s ease-out;
+            transition: all 0.3s ease-out;
         }
 
-        /* Cabeza del portero */
+        /* Cabeza de Macso */
         .portero::before {
             content: "";
             position: absolute;
-            top: -12px;
+            top: -14px;
             left: 50%;
             transform: translateX(-50%);
-            width: 14px;
-            height: 12px;
-            background: #d2a17c; /* Piel */
+            width: 16px;
+            height: 14px;
+            background: #e0a98c;
             border: 2px solid #000;
-            border-bottom: none;
         }
 
-        /* Guantes Blancos en posición baja de espera */
+        /* Guantes listos para atajar */
         .portero::after {
             content: "🧤🧤";
-            font-size: 10px;
+            font-size: 11px;
             position: absolute;
-            top: 10px;
+            top: 6px;
             left: 50%;
             transform: translateX(-50%);
-            letter-spacing: 6px;
+            letter-spacing: 8px;
         }
 
-        /* Animación leve de espera (pequeño rebote) */
+        /* ANIMACIÓN DE MOVIMIENTO DE LADO A LADO */
         .portero.esperando {
-            animation: respiracion 0.6s infinite alternate ease-in-out;
+            animation: moverLadoALado 1.8s infinite alternate ease-in-out;
         }
 
-        @keyframes respiracion {
-            0% { height: 34px; }
-            100% { height: 38px; }
+        @keyframes moverLadoALado {
+            0% { left: 25%; }
+            100% { left: 75%; }
         }
 
-        /* EL BALÓN DE FÚTBOL */
+        /* BOTONES ESTILO ESPEJO BRILLANTE */
+        .zona-tiro {
+            position: absolute;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            /* Efecto reflejo de cristal/espejo */
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 40%, #94a3b8 70%, #64748b 100%);
+            color: #1e293b;
+            border: 3px solid #ffffff;
+            box-shadow: inset -2px -2px 0px #475569, 3px 3px 0px #000;
+            font-weight: bold;
+            z-index: 5;
+            transition: transform 0.1s;
+        }
+
+        .zona-tiro:hover:not(:disabled) {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+        }
+
+        .top-left     { top: 12px; left: 12px; }
+        .top-right    { top: 12px; right: 12px; }
+        .center       { top: 35px; left: 50%; transform: translateX(-50%); }
+        .bottom-left  { bottom: 12px; left: 12px; }
+        .bottom-right { bottom: 12px; right: 12px; }
+
+        .zona-tiro:disabled { opacity: 0; cursor: not-allowed; }
+
+        /* BALÓN */
         .balon {
             position: absolute;
             bottom: 30px;
@@ -152,35 +179,10 @@
             background-image: radial-gradient(circle, #000 25%, transparent 25%);
             background-size: 8px 8px;
             z-index: 4;
-            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        /* BOTONES DE TIRO (Diseño limpio en los bordes) */
-        .zona-tiro {
-            position: absolute;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 8px;
-            padding: 6px 10px;
-            cursor: pointer;
-            background-color: #0000ff;
-            color: #fff;
-            border: 2px solid #ffffff;
-            box-shadow: 2px 2px 0px #000;
-            z-index: 5;
-        }
-
-        .zona-tiro:hover:not(:disabled) { background-color: #ff0055; }
-
-        /* Ajustados para que queden perfectos dentro de la red */
-        .top-left     { top: 12px; left: 12px; }
-        .top-right    { top: 12px; right: 12px; }
-        .center       { top: 35px; left: 50%; transform: translateX(-50%); }
-        .bottom-left  { bottom: 12px; left: 12px; }
-        .bottom-right { bottom: 12px; right: 12px; }
-
-        .zona-tiro:disabled { opacity: 0; cursor: not-allowed; }
-
-        /* PANTALLA DE RESULTADOS */
+        /* RESULTADOS */
         .pantalla-resultado {
             max-width: 500px;
             margin: 15px auto;
@@ -194,10 +196,11 @@
 </head>
 <body>
 
+    <!-- Marcador con Nombre Actualizado -->
     <div class="marcador">
         <span>CLIENTE</span>
         <span>VS</span>
-        <span>PORTERO</span>
+        <span>PORTERO MACSO</span>
     </div>
 
     <h1>¡PATEA EL PENAL!</h1>
@@ -205,12 +208,14 @@
 
     <div class="estadio" id="estadio">
         <div class="porteria-retro">
+            <!-- Botones Espejo -->
             <button class="zona-tiro top-left" onclick="jugar(0, -10, 45, 'izquierda')">[1]</button>
             <button class="zona-tiro top-right" onclick="jugar(1, -10, 370, 'derecha')">[2]</button>
             <button class="zona-tiro center" onclick="jugar(2, 20, 210, 'centro')">[3]</button>
             <button class="zona-tiro bottom-left" onclick="jugar(3, 100, 45, 'izquierda')">[4]</button>
             <button class="zona-tiro bottom-right" onclick="jugar(4, 100, 370, 'derecha')">[5]</button>
             
+            <!-- Portero Macso en movimiento constante -->
             <div class="portero esperando" id="portero"></div>
         </div>
 
@@ -227,11 +232,10 @@
             { tipo: "gol", msg: "🎁 ¡GANASTE: ENVÍO GRATIS!" },
             { tipo: "gol", msg: "🎁 ¡GANASTE: 10% DESCUENTO!" },
             { tipo: "gol", msg: "🎁 ¡GANASTE: 5% DESCUENTO!" },
-            { tipo: "atajado", msg: "❌ ¡LO ATAJÓ EL PORTERO! (Sin Premio)" },
-            { tipo: "atajado", msg: "❌ ¡LO TAPÓ EL ARQUERO! (Sin Premio)" }
+            { tipo: "atajado", msg: "❌ ¡LO ATAJÓ EL PORTERO MACSO! (Sin Premio)" },
+            { tipo: "atajado", msg: "❌ ¡MACSO TAPÓ TU DISPARO! (Sin Premio)" }
         ];
 
-        // Mezclar premios al azar
         const premiosMezclados = bolsaPremios.sort(() => Math.random() - 0.5);
 
         window.onload = function() {
@@ -243,39 +247,43 @@
         function jugar(indice, topDestino, leftDestino, direccionTiro) {
             localStorage.setItem("yaJugoPenal", "true");
 
-            // Desaparecer botones instantáneamente para no entorpecer la visual
+            // Ocultar espejos de tiro de inmediato
             document.querySelectorAll('.zona-tiro').forEach(b => b.disabled = true);
 
             const balon = document.getElementById('balon');
             const portero = document.getElementById('portero');
             
+            // Capturar la posición exacta en la que iba el portero antes de frenar la animación
+            const estiloComputado = window.getComputedStyle(portero);
+            const leftActual = estiloComputado.left;
+            
             portero.classList.remove('esperando');
+            portero.style.left = leftActual; // Congelar en su posición actual
 
             const resultado = premiosMezclados[indice];
 
-            // 1. ANIMACIÓN DEL BALÓN (Viaja desde el punto penal al arco)
-            // Se calcula la posición relativa dentro del arco
+            // Animación física del balón
             balon.style.bottom = (380 - (topDestino + 100)) + "px"; 
             balon.style.left = (leftDestino + 20) + "px";
             balon.style.transform = "scale(0.55) rotate(720deg)";
 
-            // 2. ANIMACIÓN DEL PORTERO (Recorrido controlado máximo del 40%)
+            // Reacción del Portero Macso
             setTimeout(() => {
                 if (resultado.tipo === "gol") {
-                    // Gol: Se avienta mal o al lado contrario
-                    if (direccionTiro === "izquierda") { portero.style.left = "70%"; }
-                    else if (direccionTiro === "derecha") { portero.style.left = "30%"; }
-                    else { portero.style.left = "30%"; } // Se quita del centro
-                    portero.style.transform = "translateX(-50%) rotate(30deg)";
+                    // Se avienta al lado opuesto de forma errática
+                    if (direccionTiro === "izquierda") { portero.style.left = "75%"; }
+                    else if (direccionTiro === "derecha") { portero.style.left = "25%"; }
+                    else { portero.style.left = "25%"; }
+                    portero.style.transform = "translateX(-50%) rotate(40deg)";
                 } else {
-                    // Atajado: Se desplaza exactamente al sitio del impacto dentro de sus límites
+                    // Ataja el balón y se mueve justo a la posición del espejo elegido
                     portero.style.bottom = (160 - topDestino - 35) + "px";
                     portero.style.left = leftDestino + "px";
-                    portero.style.height = "42px"; // Se estira un poco
+                    portero.style.height = "42px"; 
                 }
-            }, 80);
+            }, 50);
 
-            // 3. MOSTRAR RESULTADO EN LA CAJA NEGRA
+            // Desplegar el premio obtenido
             setTimeout(() => {
                 const caja = document.getElementById('resultadoCaja');
                 const texto = document.getElementById('textoResultado');
@@ -284,7 +292,7 @@
                 if (resultado.tipo === "gol") {
                     texto.innerHTML = `<h2 style="color: #00ff00; font-size:14px; margin:0 0 10px 0;">¡GOOOOOL!</h2><p>${resultado.msg}</p><p style="color:#ffcc00; font-size:9px;">Toma captura de pantalla para reclamar tu premio.</p>`;
                 } else {
-                    texto.innerHTML = `<h2 style="color: #ff0055; font-size:14px; margin:0 0 10px 0;">¡ATAJADO!</h2><p>${resultado.msg}</p><p>¡Gracias por participar!</p>`;
+                    texto.innerHTML = `<h2 style="color: #ff0055; font-size:14px; margin:0 0 10px 0;">¡ATAJADO!</h2><p>${resultado.msg}</p><p>¡Portero Macso defendió su arco con éxito!</p>`;
                 }
             }, 600);
         }
