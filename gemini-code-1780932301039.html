@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penal Retro Mundialista</title>
+    <!-- Fuente Pixel Art de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="family">
+    <style>
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background-color: #103210; /* Verde oscuro tipo pasto retro */
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+            font-size: 12px;
+            image-rendering: pixelated;
+        }
+
+        h1 {
+            color: #ffcc00;
+            font-size: 18px;
+            text-shadow: 3px 3px 0px #000;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        .sub{
+            font-size: 10px;
+            color: #00ffff;
+            margin-bottom: 20px;
+        }
+
+        /* Marcador estilo Super Nintendo */
+        .marcador {
+            display: flex;
+            justify-content: space-between;
+            max-width: 500px;
+            margin: 0 auto 20px auto;
+            background-color: #000;
+            border: 4px solid #ff0055;
+            padding: 10px;
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        .equipo { color: #fff; }
+        .vs { color: #ffcc00; }
+
+        /* Contenedor de la portería retro */
+        .porteria-retro {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 250px;
+            border: 6px solid #ffffff;
+            border-bottom: none;
+            margin: 20px auto;
+            background: #1e561e;
+            box-shadow: inset 0px 0px 40px rgba(0,0,0,0.5);
+        }
+
+        /* Red pixelada */
+        .porteria-retro::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(#fff 2px, transparent 2px), linear-gradient(90deg, #fff 2px, transparent 2px);
+            background-size: 15px 15px;
+            opacity: 0.2;
+        }
+
+        /* Botones / Zonas de tiro estilo Arcade */
+        .zona-tiro {
+            position: absolute;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            padding: 8px;
+            cursor: pointer;
+            background-color: #0000ff;
+            color: #fff;
+            border: 3px solid #ffffff;
+            box-shadow: 3px 3px 0px #000;
+            outline: none;
+        }
+
+        .zona-tiro:hover:not(:disabled) {
+            background-color: #ff0055;
+            transform: scale(1.05);
+        }
+
+        /* Posiciones exactas */
+        .top-left     { top: 15px; left: 15px; }
+        .top-right    { top: 15px; right: 15px; }
+        .center       { top: 100px; left: 50%; transform: translateX(-50%); }
+        .bottom-left  { bottom: 15px; left: 15px; }
+        .bottom-right { bottom: 15px; right: 15px; }
+
+        /* Bloqueo de botones */
+        .zona-tiro:disabled {
+            background-color: #444 !important;
+            color: #888 !important;
+            border-color: #666 !important;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .zona-tiro.seleccionada {
+            background-color: #00ff00 !important;
+            color: #000 !important;
+            border-color: #fff !important;
+        }
+
+        /* Pantalla de resultado */
+        .pantalla-resultado {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 15px;
+            border: 4px solid #fff;
+            background-color: #000;
+            display: none;
+            box-shadow: 5px 5px 0px #ffcc00;
+        }
+
+        .premio-titulo {
+            color: #00ff00;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Marcador de Arriba -->
+    <div class="marcador">
+        <span class="equipo">CLIENTE</span>
+        <span class="vs">VS</span>
+        <span class="equipo">PORTERO</span>
+    </div>
+
+    <h1>¡PATEA EL PENAL!</h1>
+    <div class="sub">1 SOLO INTENTO POR JUGADOR</div>
+
+    <!-- Portería -->
+    <div class="porteria-retro" id="campoJuego">
+        <button class="zona-tiro top-left" onclick="patear(0, this)">[1]</button>
+        <button class="zona-tiro top-right" onclick="patear(1, this)">[2]</button>
+        <button class="zona-tiro center" onclick="patear(2, this)">[3]</button>
+        <button class="zona-tiro bottom-left" onclick="patear(3, this)">[4]</button>
+        <button class="zona-tiro bottom-right" onclick="patear(4, this)">[5]</button>
+    </div>
+
+    <!-- Caja de resultados -->
+    <div class="pantalla-resultado" id="resultadoCaja">
+        <div id="textoResultado"></div>
+    </div>
+
+    <script>
+        // Lista de premios disponibles (Se mezclarán al azar)
+        const bolsaPremios = [
+            "🎁 ¡GANASTE: ENVIO GRATIS!",
+            "🎁 ¡GANASTE: 10% DESCUENTO!",
+            "🎁 ¡GANASTE: 5% DESCUENTO!",
+            "❌ ¡LO ATAJÓ EL PORTERO! (Sin Premio)",
+            "❌ ¡LO TIRASTE AFUERA! (Sin Premio)"
+        ];
+
+        // Función para mezclar los premios de forma aleatoria cada vez que carga la página
+        const premiosMezclados = bolsaPremios.sort(() => Math.random() - 0.5);
+
+        // Al cargar la página, verificamos si el usuario ya jugó antes
+        window.onload = function() {
+            if (localStorage.getItem("yaJugoPenal") === "true") {
+                bloquearTodoElJuego("¡YA HAS AGOTADO TU INTENTO MUNDIALISTA!");
+            }
+        };
+
+        function patear(indiceBoton, botonPresionado) {
+            // 1. Guardar INMEDIATAMENTE en el navegador que el usuario ya jugó
+            localStorage.setItem("yaJugoPenal", "true");
+
+            // 2. Deshabilitar todos los botones para que no haga doble clic
+            const botones = document.querySelectorAll('.zona-tiro');
+            botones.forEach(b => b.disabled = true);
+
+            // 3. Resaltar la opción del cliente
+            botonPresionado.classList.add('seleccionada');
+
+            // 4. Obtener el premio asignado a ese botón
+            const premioObtenido = premiosMezclados[indiceBoton];
+
+            // 5. Mostrar resultado con estilo Retro
+            const caja = document.getElementById('resultadoCaja');
+            const texto = document.getElementById('textoResultado');
+            
+            caja.style.display = "block";
+            
+            if(premioObtenido.includes("❌")) {
+                texto.innerHTML = `<p style="color: #ff0055;">${premioObtenido}</p><p>¡Gracias por participar!</p>`;
+            } else {
+                texto.innerHTML = `<div class="premio-titulo">¡GOOOOL!</div><p>${premioObtenido}</p><p style="color: #ffcc00; font-size: 10px;">Toma una captura de pantalla y envíanosla para reclamar.</p>`;
+            }
+        }
+
+        function bloquearTodoElJuego(mensaje) {
+            const botones = document.querySelectorAll('.zona-tiro');
+            botones.forEach(b => b.disabled = true);
+            
+            const caja = document.getElementById('resultadoCaja');
+            const texto = document.getElementById('textoResultado');
+            caja.style.display = "block";
+            caja.style.borderColor = "#ff0055";
+            texto.innerHTML = `<p style="color: #ff0055; font-size: 11px;">${mensaje}</p>`;
+        }
+    </script>
+
+</body>
+</html>
