@@ -155,7 +155,7 @@
             justify-content: center;
         }
 
-        /* Posiciones exactas y simétricas dentro del arco */
+        /* Posiciones exactas dentro de la portería */
         .top-left     { top: 10px; left: 10px; }
         .top-right    { top: 10px; right: 10px; }
         .center       { top: 60px; left: 50%; transform: translateX(-50%); }
@@ -262,53 +262,52 @@
             const rectBoton = botonElegido.getBoundingClientRect();
             const rectEstadio = estadio.getBoundingClientRect();
 
-            // Calcular centro del cuadro relativo al contenedor verde
             const destinoX = (rectBoton.left - rectEstadio.left) + (rectBoton.width / 2);
             const destinoY = (rectBoton.top - rectEstadio.top) + (rectBoton.height / 2);
 
-            // Desaparecer el resto de botones para limpiar el arco
+            // Desaparecer los otros botones de inmediato
             document.querySelectorAll('.zona-tiro').forEach((b, i) => {
                 if(i !== indice) b.style.opacity = '0';
             });
 
-            // 3. DISPARO DEL BALÓN AL CUADRO
-            balon.style.top = (destinoY - 11) + "px"; // Centrado de balón (22px de ancho / 2 = 11)
+            // 3. DISPARO DEL BALÓN DIRECTO AL CUADRO
+            balon.style.top = (destinoY - 11) + "px"; 
             balon.style.left = destinoX + "px";
             balon.style.transform = "translateX(-50%) scale(0.6) rotate(720deg)";
 
-            // 4. REACCIÓN DE MACSO SEGÚN EL PREMIO
+            // 4. REACCIÓN DEL ARQUERO (Cálculo corregido a 60 milisegundos)
             setTimeout(() => {
                 if (resultado.tipo === "gol") {
-                    // GOL: Macso salta tarde y en dirección opuesta al cuadro elegido
+                    // GOL: Macso vuela tarde al lado contrario
                     if (destinoX > rectEstadio.width / 2) {
-                        portero.style.left = "25%"; // Si tiró a la derecha, salta a la izquierda
+                        portero.style.left = "25%"; 
                     } else {
-                        portero.style.left = "75%"; // Si tiró a la izquierda, salta a la derecha
+                        portero.style.left = "75%"; 
                     }
                     portero.style.bottom = "20px";
                     portero.style.transform = "translateX(-50%) rotate(-30deg)";
 
-                    // El balón da en el cuadro y cae levemente en las redes internas
+                    // El balón choca el espejo y rebota levemente hacia la red interna
                     setTimeout(() => {
                         balon.style.top = (destinoY + 15) + "px"; 
-                    }, 350);
+                    }, 300);
 
                 } else {
-                    // ATAJADO: Macso vuela con precisión y sus guantes bloquean el balón en el cuadro
+                    // ATAJADO: Macso se estira de inmediato y pone sus manos en el balón
                     const arcoRect = arco.getBoundingClientRect();
                     const posicionYEnArco = rectBoton.top - arcoRect.top;
                     const posicionXEnArco = rectBoton.left - arcoRect.left;
 
                     portero.style.bottom = (160 - posicionYEnArco - 34) + "px";
                     portero.style.left = (posicionXEnArco + (rectBoton.width / 2)) + "px";
-                    portero.style.height = "42px"; // Estiramiento físico
+                    portero.style.height = "42px"; 
                 }
-            }, 60%;
+            }, 60);
 
-            // Esconder el botón usado al final de la trayectoria
+            // Ocultar el espejo golpeado tras el impacto
             setTimeout(() => { botonElegido.style.opacity = '0'; }, 400);
 
-            // 5. MOSTRAR MARCADOR DE PREMIOS
+            // 5. DESPLEGAR EL CUADRO DE GANADORES / PERDEDORES
             setTimeout(() => {
                 const caja = document.getElementById('resultadoCaja');
                 const texto = document.getElementById('textoResultado');
