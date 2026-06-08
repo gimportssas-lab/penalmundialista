@@ -4,215 +4,286 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Penal Retro Mundialista</title>
-    <!-- Fuente Pixel Art de Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="family">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Press Start 2P', monospace;
-            background-color: #103210; /* Verde oscuro tipo pasto retro */
+            background-color: #103210;
             color: #fff;
             text-align: center;
             margin: 0;
             padding: 10px;
-            font-size: 12px;
-            image-rendering: pixelated;
+            font-size: 11px;
+            overflow-x: hidden;
         }
 
         h1 {
             color: #ffcc00;
-            font-size: 18px;
+            font-size: 16px;
             text-shadow: 3px 3px 0px #000;
-            margin-top: 20px;
-            line-height: 1.5;
+            margin: 15px 0 5px 0;
         }
 
-        .sub{
-            font-size: 10px;
+        .sub {
+            font-size: 9px;
             color: #00ffff;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        /* Marcador estilo Super Nintendo */
         .marcador {
             display: flex;
             justify-content: space-between;
             max-width: 500px;
-            margin: 0 auto 20px auto;
+            margin: 0 auto 15px auto;
             background-color: #000;
             border: 4px solid #ff0055;
             padding: 10px;
             box-shadow: 4px 4px 0px #000;
         }
 
-        .equipo { color: #fff; }
-        .vs { color: #ffcc00; }
-
-        /* Contenedor de la portería retro */
-        .porteria-retro {
+        /* ESCENARIO DEL JUEGO */
+        .estadio {
             position: relative;
             width: 100%;
             max-width: 500px;
-            height: 250px;
-            border: 6px solid #ffffff;
-            border-bottom: none;
-            margin: 20px auto;
+            height: 380px;
+            margin: 0 auto;
             background: #1e561e;
-            box-shadow: inset 0px 0px 40px rgba(0,0,0,0.5);
+            border: 4px solid #000;
+            box-shadow: 5px 5px 0px #000;
+            overflow: hidden;
         }
 
-        /* Red pixelada */
+        /* Líneas de la cancha */
+        .linea-penal {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.4);
+            border-bottom: none;
+        }
+
+        /* Portería */
+        .porteria-retro {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85%;
+            height: 160px;
+            border: 6px solid #ffffff;
+            border-bottom: none;
+            background: rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
         .porteria-retro::before {
             content: "";
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: linear-gradient(#fff 2px, transparent 2px), linear-gradient(90deg, #fff 2px, transparent 2px);
-            background-size: 15px 15px;
-            opacity: 0.2;
+            background-size: 12px 12px;
+            opacity: 0.15;
         }
 
-        /* Botones / Zonas de tiro estilo Arcade */
+        /* EL PORTERO PIXELADO */
+        .portero {
+            position: absolute;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 45px;
+            height: 60px;
+            background: #ffcc00; /* Cuerpo */
+            border: 3px solid #000;
+            border-radius: 5px;
+            z-index: 3;
+            transition: all 0.4s ease-out;
+        }
+
+        /* Cabeza y guantes del portero con CSS */
+        .portero::before {
+            content: "🧤";
+            position: absolute;
+            top: -10px; left: -10px;
+            font-size: 16px;
+        }
+        .portero::after {
+            content: "🧤";
+            position: absolute;
+            top: -10px; right: -10px;
+            font-size: 16px;
+        }
+
+        /* Animación de espera del portero */
+        .portero.esperando {
+            animation: balanceo 1s infinite alternate ease-in-out;
+        }
+
+        @keyframes balanceo {
+            0% { left: 47%; }
+            100% { left: 53%; }
+        }
+
+        /* EL BALÓN DE FÚTBOL */
+        .balon {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 25px;
+            background: #fff;
+            border-radius: 50%;
+            border: 2px solid #000;
+            background-image: radial-gradient(circle, #000 20%, transparent 20%), radial-gradient(circle, #000 20%, transparent 20%);
+            background-size: 8px 8px;
+            background-position: 0 0, 4px 4px;
+            z-index: 4;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* BOTONES DE TIRO */
         .zona-tiro {
             position: absolute;
             font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
-            padding: 8px;
+            font-size: 8px;
+            padding: 6px 10px;
             cursor: pointer;
             background-color: #0000ff;
             color: #fff;
-            border: 3px solid #ffffff;
-            box-shadow: 3px 3px 0px #000;
-            outline: none;
+            border: 2px solid #ffffff;
+            box-shadow: 2px 2px 0px #000;
+            z-index: 5;
         }
 
-        .zona-tiro:hover:not(:disabled) {
-            background-color: #ff0055;
-            transform: scale(1.05);
-        }
+        .zona-tiro:hover:not(:disabled) { background-color: #ff0055; }
 
-        /* Posiciones exactas */
-        .top-left     { top: 15px; left: 15px; }
-        .top-right    { top: 15px; right: 15px; }
-        .center       { top: 100px; left: 50%; transform: translateX(-50%); }
-        .bottom-left  { bottom: 15px; left: 15px; }
-        .bottom-right { bottom: 15px; right: 15px; }
+        .top-left     { top: 10px; left: 10px; }
+        .top-right    { top: 10px; right: 10px; }
+        .center       { top: 60px; left: 50%; transform: translateX(-50%); }
+        .bottom-left  { bottom: 15px; left: 10px; }
+        .bottom-right { bottom: 15px; right: 10px; }
 
-        /* Bloqueo de botones */
-        .zona-tiro:disabled {
-            background-color: #444 !important;
-            color: #888 !important;
-            border-color: #666 !important;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        .zona-tiro:disabled { opacity: 0; cursor: not-allowed; }
 
-        .zona-tiro.seleccionada {
-            background-color: #00ff00 !important;
-            color: #000 !important;
-            border-color: #fff !important;
-        }
-
-        /* Pantalla de resultado */
+        /* PANTALLA DE RESULTADOS */
         .pantalla-resultado {
             max-width: 500px;
-            margin: 20px auto;
+            margin: 15px auto;
             padding: 15px;
             border: 4px solid #fff;
             background-color: #000;
             display: none;
             box-shadow: 5px 5px 0px #ffcc00;
         }
-
-        .premio-titulo {
-            color: #00ff00;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
 
-    <!-- Marcador de Arriba -->
     <div class="marcador">
-        <span class="equipo">CLIENTE</span>
-        <span class="vs">VS</span>
-        <span class="equipo">PORTERO</span>
+        <span>CLIENTE</span>
+        <span>VS</span>
+        <span>PORTERO</span>
     </div>
 
     <h1>¡PATEA EL PENAL!</h1>
     <div class="sub">1 SOLO INTENTO POR JUGADOR</div>
 
-    <!-- Portería -->
-    <div class="porteria-retro" id="campoJuego">
-        <button class="zona-tiro top-left" onclick="patear(0, this)">[1]</button>
-        <button class="zona-tiro top-right" onclick="patear(1, this)">[2]</button>
-        <button class="zona-tiro center" onclick="patear(2, this)">[3]</button>
-        <button class="zona-tiro bottom-left" onclick="patear(3, this)">[4]</button>
-        <button class="zona-tiro bottom-right" onclick="patear(4, this)">[5]</button>
+    <div class="estadio" id="estadio">
+        <div class="porteria-retro">
+            <button class="zona-tiro top-left" onclick="jugar(0, 30, 60, 'izquierda')">[1]</button>
+            <button class="zona-tiro top-right" onclick="jugar(1, 30, 380, 'derecha')">[2]</button>
+            <button class="zona-tiro center" onclick="jugar(2, 80, 225, 'centro')">[3]</button>
+            <button class="zona-tiro bottom-left" onclick="jugar(3, 140, 40, 'izquierda')">[4]</button>
+            <button class="zona-tiro bottom-right" onclick="jugar(4, 140, 400, 'derecha')">[5]</button>
+        </div>
+
+        <div class="linea-penal"></div>
+        <div class="portero esperando" id="portero"></div>
+        <div class="balon" id="balon"></div>
     </div>
 
-    <!-- Caja de resultados -->
     <div class="pantalla-resultado" id="resultadoCaja">
         <div id="textoResultado"></div>
     </div>
 
     <script>
-        // Lista de premios disponibles (Se mezclarán al azar)
         const bolsaPremios = [
-            "🎁 ¡GANASTE: ENVIO GRATIS!",
-            "🎁 ¡GANASTE: 10% DESCUENTO!",
-            "🎁 ¡GANASTE: 5% DESCUENTO!",
-            "❌ ¡LO ATAJÓ EL PORTERO! (Sin Premio)",
-            "❌ ¡LO TIRASTE AFUERA! (Sin Premio)"
+            { tipo: "gol", msg: "🎁 ¡GANASTE: ENVIÓ GRATIS!" },
+            { tipo: "gol", msg: "🎁 ¡GANASTE: 10% DESCUENTO!" },
+            { tipo: "gol", msg: "🎁 ¡GANASTE: 5% DESCUENTO!" },
+            { tipo: "atajado", msg: "❌ ¡LO ATAJÓ EL PORTERO! (Sin Premio)" },
+            { tipo: "atajado", msg: "❌ ¡LO TAPÓ EL ARQUERO! (Sin Premio)" }
         ];
 
-        // Función para mezclar los premios de forma aleatoria cada vez que carga la página
+        // Mezclar premios al cargar la página
         const premiosMezclados = bolsaPremios.sort(() => Math.random() - 0.5);
 
-        // Al cargar la página, verificamos si el usuario ya jugó antes
         window.onload = function() {
             if (localStorage.getItem("yaJugoPenal") === "true") {
-                bloquearTodoElJuego("¡YA HAS AGOTADO TU INTENTO MUNDIALISTA!");
+                bloquearTodo("¡YA HAS AGOTADO TU INTENTO MUNDIALISTA!");
             }
         };
 
-        function patear(indiceBoton, botonPresionado) {
-            // 1. Guardar INMEDIATAMENTE en el navegador que el usuario ya jugó
+        function jugar(indice, topDestino, leftDestino, direccionTiro) {
             localStorage.setItem("yaJugoPenal", "true");
 
-            // 2. Deshabilitar todos los botones para que no haga doble clic
-            const botones = document.querySelectorAll('.zona-tiro');
-            botones.forEach(b => b.disabled = true);
+            // Bloquear botones quitándolos de la vista
+            document.querySelectorAll('.zona-tiro').forEach(b => b.disabled = true);
 
-            // 3. Resaltar la opción del cliente
-            botonPresionado.classList.add('seleccionada');
-
-            // 4. Obtener el premio asignado a ese botón
-            const premioObtenido = premiosMezclados[indiceBoton];
-
-            // 5. Mostrar resultado con estilo Retro
-            const caja = document.getElementById('resultadoCaja');
-            const texto = document.getElementById('textoResultado');
+            const balon = document.getElementById('balon');
+            const portero = document.getElementById('portero');
             
-            caja.style.display = "block";
-            
-            if(premioObtenido.includes("❌")) {
-                texto.innerHTML = `<p style="color: #ff0055;">${premioObtenido}</p><p>¡Gracias por participar!</p>`;
-            } else {
-                texto.innerHTML = `<div class="premio-titulo">¡GOOOOL!</div><p>${premioObtenido}</p><p style="color: #ffcc00; font-size: 10px;">Toma una captura de pantalla y envíanosla para reclamar.</p>`;
-            }
+            // Detener el balanceo automático
+            portero.classList.remove('esperando');
+
+            // Obtener premio oculto asignado a este botón
+            const resultado = premiosMezclados[indice];
+
+            // ANIMACIÓN: Mover el Balón
+            balon.style.top = topDestino + "px";
+            balon.style.left = leftDestino + "px";
+            balon.style.transform = "scale(0.6) rotate(360deg)"; // Efecto de alejamiento
+
+            // ANIMACIÓN: Mover al Portero según el premio
+            setTimeout(() => {
+                if (resultado.tipo === "gol") {
+                    // El portero se tira al lado contrario o falla deliberadamente
+                    if (direccionTiro === "izquierda") { portero.style.left = "80%"; }
+                    else if (direccionTiro === "derecha") { portero.style.left = "20%"; }
+                    else { portero.style.left = "20%"; } // Si es al centro se quita
+                } else {
+                    // El portero adivina y se tira exactamente a donde va el balón
+                    portero.style.top = (topDestino - 15) + "px";
+                    portero.style.left = leftDestino + "px";
+                }
+            }, 100);
+
+            // Mostrar el cartel del premio al terminar la animación
+            setTimeout(() => {
+                const caja = document.getElementById('resultadoCaja');
+                const texto = document.getElementById('textoResultado');
+                caja.style.display = "block";
+
+                if (resultado.tipo === "gol") {
+                    texto.innerHTML = `<h2 style="color: #00ff00; font-size:16px; margin:0 0 10px 0;">¡GOOOOOL!</h2><p>${resultado.msg}</p><p style="color:#ffcc00; font-size:9px;">Toma captura de pantalla para reclamar.</p>`;
+                } else {
+                    texto.innerHTML = `<h2 style="color: #ff0055; font-size:16px; margin:0 0 10px 0;">¡ATAJADO!</h2><p>${resultado.msg}</p><p>¡Gracias por jugar!</p>`;
+                }
+            }, 600);
         }
 
-        function bloquearTodoElJuego(mensaje) {
-            const botones = document.querySelectorAll('.zona-tiro');
-            botones.forEach(b => b.disabled = true);
-            
+        function bloquearTodo(mensaje) {
+            document.querySelectorAll('.zona-tiro').forEach(b => b.disabled = true);
             const caja = document.getElementById('resultadoCaja');
-            const texto = document.getElementById('textoResultado');
             caja.style.display = "block";
             caja.style.borderColor = "#ff0055";
-            texto.innerHTML = `<p style="color: #ff0055; font-size: 11px;">${mensaje}</p>`;
+            document.getElementById('textoResultado').innerHTML = `<p style="color: #ff0055; font-size: 10px; margin:0;">${mensaje}</p>`;
         }
     </script>
-
 </body>
 </html>
